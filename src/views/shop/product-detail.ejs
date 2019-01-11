@@ -1,0 +1,10 @@
+<div class="centered">
+    <h1><%= product.title %></h1>
+    <hr />
+    <div>
+        <img src="<%= product.imageUrl %>" alt="<%= product.title %>" class="product__image">
+    </div>
+    <h2><%= product.price %></h2>
+    <p><%= product.description %></p>
+    <%- include('../partials/add-to-cart.ejs') %>
+</div>

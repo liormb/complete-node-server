@@ -1,0 +1,19 @@
+<form class="product-form inline" action="/admin/product/<%= product.id || '' %>" method="POST">
+    <div class="form-control">
+        <label for="title">Title</label>
+        <input id="title" type="text" name="title" value="<%= product.title || '' %>">
+    </div>
+    <div class="form-control">
+        <label for="price">Price</label>
+        <input id="price" type="number" name="price" value="<%= product.price || '' %>" step="0.01">
+    </div>
+    <div class="form-control">
+        <label for="imageUrl">Image URL</label>
+        <input id="imageUrl" type="text" name="imageUrl" value="<%= product.imageUrl || '' %>">
+    </div>
+    <div class="form-control">
+        <label for="description">Description</label>
+        <textarea id="description" name="description" rows="5"><%= product.description || '' %></textarea>
+    </div>
+    <button class="btn" type="submit"><%= product.id ? 'Update' : 'Add' %> Product</button>
+</form>

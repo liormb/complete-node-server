@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>
+        <%= title %>
+    </title>
+    <link rel="stylesheet" href="/styles/main.css">
+    <% if (['index', 'products', 'detail', 'admin_product_form', 'admin_edit_product_form', 'admin_products'].includes(route)) { %>
+        <link rel="stylesheet" href="/styles/product.css">
+    <% } %>
+    <% if (['products', 'admin_products', 'admin_product_form', 'admin_edit_product_form'].includes(route)) { %>
+        <link rel="stylesheet" href="/styles/forms.css">
+    <% } %>
+    <% if (['cart'].includes(route)) { %>
+        <link rel="stylesheet" href="/styles/cart.css">
+    <% } %>
+</head>
+
+<body>
+    <%- include('header.ejs') %>
+    <main>
+        <% if (route === 'index') { %>
+            <%- include('shop/product-list.ejs') %>
+        <% } else if (route === 'products') { %>
+            <%- include('shop/product-list.ejs') %>
+        <% } else if (route === 'cart') { %>
+            <%- include('shop/cart.ejs') %>
+        <% } else if (route === 'detail') { %>
+            <%- include('shop/product-detail.ejs') %>
+        <% } else if (route === 'admin_product_form') { %>
+            <%- include('admin/product-form.ejs') %>
+        <% } else if (route === 'admin_products') { %>
+            <%- include('admin/products.ejs') %>
+        <% } else { %>
+            <%- include('partials/404.ejs') %>
+        <% } %>
+    </main>
+    <%- include('footer.ejs') %>
+</body>
+
+</html>
