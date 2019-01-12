@@ -9,6 +9,8 @@ import User from './models/User';
 import Product from './models/Product';
 import Cart from './models/Cart';
 import CartProduct from './models/CartProduct';
+import Order from './models/Order';
+import OrderProduct from './models/OrderProduct';
 
 const app = express();
 
@@ -38,12 +40,18 @@ app.use(shopRoutes);
 app.use(errorRoutes);
 
 // setup database and associations (database's relations)
-User.hasMany(Product);
 User.hasOne(Cart);
+User.hasMany(Product);
+User.hasMany(Order);
+
 Product.belongsTo(User, { constraints: true, onDelete: 'CASCADE' });
 Product.belongsToMany(Cart, { through: CartProduct });
-Cart.belongsToMany(Product, { through: CartProduct });
+
 Cart.belongsTo(User);
+Cart.belongsToMany(Product, { through: CartProduct });
+
+Order.belongsTo(User);
+Order.belongsToMany(Product, { through: OrderProduct });
 
 sequelize
     // .sync({ force: true })

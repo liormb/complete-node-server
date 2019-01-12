@@ -77,16 +77,30 @@ export function postDeleteFromCart(req, res) {
         .catch(console.log);
 }
 
-export function getOrders(req, res) {
-    res.render('layout', {
-        route: 'orders',
-        title: 'Your Orders',
-    });
-};
-
-export function getCheckout(req, res) {
-    res.render('layout', {
-        route: 'checkout',
-        title: 'Checkout',
-    });
+export function postOrder(req, res) {
+    req.user.getCart()
+        .then(cart => Promise.all([cart, cart.getProducts()]))
+        .then(([cart, products]) => Promise.all([cart, products, req.user.createOrder()]))
+        .then(([cart, products, order]) => {
+            const modifiedProducts = products.map(product => {
+                product.orderProduct = { quantity: product.cartProduct.quantity };
+                return product;
+            });
+            return Promise.all([cart, order.addProducts(modifiedProducts)]);
+        })
+        .then(([cart]) => cart.setProducts(null))
+        .then(() => res.redirect('/orders'))
+        .catch(console.log);
 }
+
+export function getOrders(req, res) {
+    req.user.getOrders({ include: [{ model: Product }] })
+        .then(orders => {
+            res.render('layout', {
+                route: 'orders',
+                title: 'Your Orders',
+                orders,
+            });
+        })
+        .catch(console.log);
+};

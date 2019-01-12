@@ -1,0 +1,16 @@
+<% if (orders.length) { %>
+    <ul>
+        <% for (let order of orders) { %>
+            <li>
+                <h1># <%= order.id %></h1>
+                <ul>
+                    <% for (product of order.products) { %>
+                        <li><%= product.title %> (<%= product.orderProduct.quantity %>)</li>
+                    <% } %>
+                </ul>
+            </li>
+        <% } %>
+    </ul>
+<% } else { %>
+    <h1>Nothings There!</h1>
+<% } %>
