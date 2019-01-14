@@ -1,16 +1,18 @@
 <% if (orders.length) { %>
-    <ul>
+    <ul class="orders">
         <% for (let order of orders) { %>
-            <li>
-                <h1># <%= order.id %></h1>
-                <ul>
-                    <% for (product of order.products) { %>
-                        <li><%= product.title %> (<%= product.orderProduct.quantity %>)</li>
+            <li class="orders__item">
+                <h1>Order - # <%= order._id %></h1>
+                <ul class="orders__products">
+                    <% for (let product of order.items) { %>
+                        <li class="orders__products-item">
+                            <%= product.title %> (<%= product.quantity %>)
+                        </li>
                     <% } %>
                 </ul>
             </li>
         <% } %>
     </ul>
 <% } else { %>
-    <h1>Nothings There!</h1>
+    <h1>No Orders Found!</h1>
 <% } %>

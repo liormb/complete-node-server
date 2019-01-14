@@ -1,16 +1,11 @@
 import path from 'path';
 import express from 'express';
 import bodyParser from 'body-parser';
-import sequelize from './utils/database';
 import shopRoutes from './routes/shop';
 import adminRoutes from './routes/admin';
 import errorRoutes from './routes/error';
+import mongoConnect from './utils/database';
 import User from './models/User';
-import Product from './models/Product';
-import Cart from './models/Cart';
-import CartProduct from './models/CartProduct';
-import Order from './models/Order';
-import OrderProduct from './models/OrderProduct';
 
 const app = express();
 
@@ -24,11 +19,11 @@ app.use(bodyParser.urlencoded({ extended: false }));
 // setup static path directory
 app.use(express.static(path.join(__dirname, '../public')));
 
-// add first sql user to the request
+// add first user to the request body
 app.use((req, res, next) => {
-    User.findByPk(1)
+    User.findById('5c3b9e43a16aa8bc240e0e7b')
         .then(user => {
-            req.user = user;
+            req.user = new User({ id: user._id, ...user });
             next();
         })
         .catch(console.log);
@@ -40,36 +35,7 @@ app.use(shopRoutes);
 app.use(errorRoutes);
 
 // setup database and associations (database's relations)
-User.hasOne(Cart);
-User.hasMany(Product);
-User.hasMany(Order);
-
-Product.belongsTo(User, { constraints: true, onDelete: 'CASCADE' });
-Product.belongsToMany(Cart, { through: CartProduct });
-
-Cart.belongsTo(User);
-Cart.belongsToMany(Product, { through: CartProduct });
-
-Order.belongsTo(User);
-Order.belongsToMany(Product, { through: OrderProduct });
-
-sequelize
-    // .sync({ force: true })
-    .sync()
-    .then(() => User.findByPk(1))
-    .then(user => user
-        ? Promise.resolve(user)
-        : User.create({
-            firstName: 'Lior',
-            lastName: 'Elrom',
-            email: 'liormb@yahoo.com',
-        })
-    )
-    .then(user => Promise.all([user, user.getCart()]))
-    .then(([user, cart]) => cart
-        ? Promise.resolve(cart)
-        : user.createCart()
-    )
-    .then(() => app.listen(3000))
-    .catch(console.log);
+mongoConnect(() => {
+    app.listen(3000);
+});    
 

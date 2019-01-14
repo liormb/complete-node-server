@@ -9,11 +9,11 @@
                     <p class="vertically-align"><%= product.title %></p>
                 </div>
                 <div class="cart-product-section cart-product-quantity">
-                    <p class="vertically-align"><%= product.cartProduct.quantity %></p>
+                    <p class="vertically-align"><%= product.quantity %></p>
                 </div>
                 <div class="cart-product-section cart-product-form">
                     <form class="vertically-align" action="/cart-delete-item" method="POST">
-                        <input type="hidden" name="productId" value="<%= product.id %>">
+                        <input type="hidden" name="productId" value="<%= product._id %>">
                         <button class="btn" type="submit">Delete</button>
                     </form>
                 </div>

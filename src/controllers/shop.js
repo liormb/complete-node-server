@@ -2,7 +2,7 @@ import get from 'lodash.get';
 import Product from '../models/Product';
 
 export function getIndex(req, res) {
-    Product.findAll()
+    Product.fetchAll()
         .then(products => {
             res.render('layout', {
                 route: 'index',
@@ -15,7 +15,7 @@ export function getIndex(req, res) {
 
 export function getProduct(req, res) {
     const { productId } = req.params;
-    Product.findByPk(productId)
+    Product.findById(productId)
         .then(product => {
             res.render('layout', {
                 route: 'detail',
@@ -27,7 +27,7 @@ export function getProduct(req, res) {
 }
 
 export function getProducts(req, res) {
-    Product.findAll()
+    Product.fetchAll()
         .then(products => {
             res.render('layout', {
                 route: 'products',
@@ -40,7 +40,6 @@ export function getProducts(req, res) {
 
 export function getCart(req, res) {
     req.user.getCart()
-        .then(cart => cart.getProducts())
         .then(products => {
             res.render('layout', {
                 route: 'cart',
@@ -53,48 +52,27 @@ export function getCart(req, res) {
 
 export function postCart(req, res) {
     const { productId } = req.body;
-    req.user.getCart()
-        .then(cart => Promise.all([
-            cart,
-            cart.getProducts({ where: { id: productId }}),
-        ]))
-        .then(([cart, [product]]) => Promise.all([
-            cart,
-            product || Product.findByPk(productId),
-            get(product, 'cartProduct.quantity', 0) + 1 ,
-        ]))
-        .then(([cart, product, quantity]) => cart.addProduct(product, { through: {quantity} }))
+    Product.findById(productId)
+        .then(product => req.user.addToCart(product))
         .then(() => res.redirect('/cart'))
         .catch(console.log);
 }
 
 export function postDeleteFromCart(req, res) {
     const { productId } = req.body;
-    req.user.getCart()
-        .then(cart => cart.getProducts({ where: {id: productId} }))
-        .then(([product]) => product.cartProduct.destroy())
+    req.user.deleteFromCartByProductId(productId)
         .then(() => res.redirect('/cart'))
         .catch(console.log);
 }
 
 export function postOrder(req, res) {
-    req.user.getCart()
-        .then(cart => Promise.all([cart, cart.getProducts()]))
-        .then(([cart, products]) => Promise.all([cart, products, req.user.createOrder()]))
-        .then(([cart, products, order]) => {
-            const modifiedProducts = products.map(product => {
-                product.orderProduct = { quantity: product.cartProduct.quantity };
-                return product;
-            });
-            return Promise.all([cart, order.addProducts(modifiedProducts)]);
-        })
-        .then(([cart]) => cart.setProducts(null))
+    req.user.addOrder()
         .then(() => res.redirect('/orders'))
         .catch(console.log);
 }
 
 export function getOrders(req, res) {
-    req.user.getOrders({ include: [{ model: Product }] })
+    req.user.getOrders()
         .then(orders => {
             res.render('layout', {
                 route: 'orders',
