@@ -24,7 +24,7 @@ export function postAddProduct(req, res) {
 }
 
 export function getProducts(req, res) {
-    Product.fetchAll()
+    Product.find()
         .then(products => {
             res.render('layout', {
                 route: 'admin_products',
@@ -50,18 +50,25 @@ export function getEditProduct(req, res) {
 }
 
 export function postEditProduct(req, res) {
-    const { productId: id } = req.params;
+    const { productId } = req.params;
     const { title, price, imageUrl, description } = req.body;
-    const product = new Product({ id, title, price, imageUrl, description });
 
-    product.save()
+    Product.findById(productId)
+        .then(product => {
+            product.title = title;
+            product.price = price;
+            product.imageUrl = imageUrl;
+            product.description = description;
+            return product.save();
+        })
         .then(() => res.redirect('/admin/products'))
         .catch(console.log);
 }
 
 export function postDeleteProduct(req, res) {
     const { productId } = req.body;
-    Product.deleteById(productId)
+
+    Product.findByIdAndRemove(productId)
         .then(() => res.redirect('/admin/products'))
         .catch(console.log);
 }
