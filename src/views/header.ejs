@@ -7,18 +7,33 @@
             <li class="main-header__item">
                 <a class="<%= ['products', 'detail'].includes(route) ? 'active' : '' %>" href="/products">Products</a>
             </li>
-            <li class="main-header__item">
-                <a class="<%= ['cart'].includes(route) ? 'active' : '' %>" href="/cart">Cart</a>
-            </li>
-            <li class="main-header__item">
-                <a class="<%= ['orders'].includes(route) ? 'active' : '' %>" href="/orders">Orders</a>
-            </li>
-            <li class="main-header__item">
-                <a class="<%= ['admin_add_product'].includes(route) ? 'active' : '' %>" href="/admin/product">Add Product</a>
-            </li>
-            <li class="main-header__item">
-                <a class="<%= ['admin_products'].includes(route) ? 'active' : '' %>" href="/admin/products">Admin Products</a>
-            </li>
+            <% if (isAuthenticated) { %>
+                <li class="main-header__item">
+                    <a class="<%= ['cart'].includes(route) ? 'active' : '' %>" href="/cart">Cart</a>
+                </li>
+                <li class="main-header__item">
+                    <a class="<%= ['orders'].includes(route) ? 'active' : '' %>" href="/orders">Orders</a>
+                </li>
+                <li class="main-header__item">
+                    <a class="<%= ['admin_add_product'].includes(route) ? 'active' : '' %>" href="/admin/product">Add Product</a>
+                </li>
+                <li class="main-header__item">
+                    <a class="<%= ['admin_products'].includes(route) ? 'active' : '' %>" href="/admin/products">Admin Products</a>
+                </li>
+            <% } %>
+        </ul>
+        <ul class="main-header__item-list">
+            <% if (isAuthenticated) { %>
+                <li class="main-header__item">
+                    <form action="/logout" method="POST">
+                        <button type="submit">Logout</button>
+                    </form>
+                </li>
+            <% } else { %>
+                <li class="main-header__item">
+                    <a href="/login" class="<%= ['login'].includes(route) ? 'active' : '' %>">Login</a>
+                </li>
+            <% } %>
         </ul>
     </nav>
 </header>

@@ -11,7 +11,7 @@
     <% if (['index', 'products', 'detail', 'admin_product_form', 'admin_edit_product_form', 'admin_products'].includes(route)) { %>
         <link rel="stylesheet" href="/styles/product.css">
     <% } %>
-    <% if (['products', 'admin_products', 'admin_product_form', 'admin_edit_product_form'].includes(route)) { %>
+    <% if (['login', 'products', 'admin_products', 'admin_product_form', 'admin_edit_product_form'].includes(route)) { %>
         <link rel="stylesheet" href="/styles/forms.css">
     <% } %>
     <% if (['cart'].includes(route)) { %>
@@ -19,6 +19,9 @@
     <% } %>
     <% if (['orders'].includes(route)) { %>
         <link rel="stylesheet" href="/styles/orders.css">
+    <% } %>
+    <% if (['login'].includes(route)) { %>
+        <link rel="stylesheet" href="/styles/auth.css">
     <% } %>
 </head>
 
@@ -39,6 +42,8 @@
             <%- include('admin/product-form.ejs') %>
         <% } else if (route === 'admin_products') { %>
             <%- include('admin/products.ejs') %>
+        <% } else if (route === 'login') { %>
+            <%- include('auth/login.ejs') %>
         <% } else { %>
             <%- include('partials/404.ejs') %>
         <% } %>
