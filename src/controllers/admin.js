@@ -4,7 +4,6 @@ export function getAddProduct(req, res) {
     res.render('layout', {
         route: 'admin_product_form',
         title: 'Add Product',
-        isAuthenticated: req.session.isLoggedIn,
         product: {},
     });
 }
@@ -30,7 +29,6 @@ export function getProducts(req, res) {
             res.render('layout', {
                 route: 'admin_products',
                 title: 'Admin Products',
-                isAuthenticated: req.session.isLoggedIn,
                 products,
             });
         })
@@ -45,7 +43,6 @@ export function getEditProduct(req, res) {
             res.render('layout', {
                 route: 'admin_product_form',
                 title: `Edit Product - ${product.title}`,
-                isAuthenticated: req.session.isLoggedIn,
                 product,
             })
         })

@@ -7,7 +7,6 @@ export function getIndex(req, res) {
             res.render('layout', {
                 route: 'index',
                 title: 'Shop',
-                isAuthenticated: req.session.isLoggedIn,
                 products,
             });
         })
@@ -21,7 +20,6 @@ export function getProduct(req, res) {
             res.render('layout', {
                 route: 'detail',
                 title: product.title,
-                isAuthenticated: req.session.isLoggedIn,
                 product,
             });
         })
@@ -34,7 +32,6 @@ export function getProducts(req, res) {
             res.render('layout', {
                 route: 'products',
                 title: 'All Products',
-                isAuthenticated: req.session.isLoggedIn,
                 products,
             });
         })
@@ -53,7 +50,6 @@ export function getCart(req, res) {
             res.render('layout', {
                 route: 'cart',
                 title: 'Your Cart',
-                isAuthenticated: req.session.isLoggedIn,
                 products,
             });
         })
@@ -102,7 +98,6 @@ export function getOrders(req, res) {
             res.render('layout', {
                 route: 'orders',
                 title: 'Your Orders',
-                isAuthenticated: req.session.isLoggedIn,
                 orders: orders.map(order => ({
                     _id: order._id,
                     products: order.products.map(product => ({
