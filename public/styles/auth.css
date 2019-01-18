@@ -4,3 +4,13 @@
     margin: auto;
     display: block;
 }
+
+.actions {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.reset-password {
+    align-self: center;
+}

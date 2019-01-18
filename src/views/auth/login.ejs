@@ -9,5 +9,8 @@
         <input id="password" type="password" name="password">
     </div>
     <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-    <button class="btn" type="submit">Login</button>
+    <div class="actions">
+        <a href="/reset-password" class="reset-password">Reset Password</a>
+        <button class="btn" type="submit">Login</button>
+    </div>
 </form>

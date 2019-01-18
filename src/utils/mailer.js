@@ -9,10 +9,22 @@ export function sighUpMail({ email, firstName }) {
         to: [email],
         from: 'info@node-shop.com',
         subject: 'Welcome to Our Online Shop!',
-        text: 'Awesome',
         html: `
             <h1>Hello ${firstName || ''},</h1>
             <h2>You successfully signed up!</h2>
+        `,
+    };
+}
+
+export function resetPasswordEmail({ email, firstName, lastName, token }) {
+    return {
+        to: [email],
+        from: 'info@node-shop.com',
+        subject: 'Password Reset | Online Shop',
+        html: `
+            <h1>Hello ${firstName} ${lastName},</h1>
+            <h3>You requested a password reset</h3>
+            <h3>Click this <a href="http://localhost:3000/reset-password/${token}">link</a> to set a new password</h3>
         `,
     };
 }

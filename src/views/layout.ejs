@@ -11,7 +11,7 @@
     <% if (['index', 'products', 'detail', 'admin_product_form', 'admin_edit_product_form', 'admin_products'].includes(route)) { %>
         <link rel="stylesheet" href="/styles/product.css">
     <% } %>
-    <% if (['login', 'signup', 'products', 'admin_products', 'admin_product_form', 'admin_edit_product_form'].includes(route)) { %>
+    <% if (['signup', 'login', 'reset_password', 'new_password', 'products', 'admin_products', 'admin_product_form', 'admin_edit_product_form'].includes(route)) { %>
         <link rel="stylesheet" href="/styles/forms.css">
     <% } %>
     <% if (['cart'].includes(route)) { %>
@@ -20,7 +20,7 @@
     <% if (['orders'].includes(route)) { %>
         <link rel="stylesheet" href="/styles/orders.css">
     <% } %>
-    <% if (['login', 'signup'].includes(route)) { %>
+    <% if (['signup', 'login', 'reset_password', 'new_password'].includes(route)) { %>
         <link rel="stylesheet" href="/styles/auth.css">
     <% } %>
 </head>
@@ -46,6 +46,10 @@
             <%- include('auth/login.ejs') %>
         <% } else if (route === 'signup') { %>
             <%- include('auth/signup.ejs') %>
+        <% } else if (route === 'reset_password') { %>
+            <%- include('auth/reset-password.ejs') %>
+        <% } else if (route === 'new_password') { %>
+            <%- include('auth/new-password.ejs') %>
         <% } else { %>
             <%- include('partials/404.ejs') %>
         <% } %>

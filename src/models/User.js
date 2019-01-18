@@ -9,6 +9,12 @@ const schema = new Schema({
         type: String,
         required: true,
     },
+    resetToken: {
+        type: String,
+    },
+    resetTokenExpiration: {
+        type: Date,
+    },
     firstName: {
         type: String,
         required: true,

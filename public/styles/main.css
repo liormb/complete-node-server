@@ -5,6 +5,7 @@
   margin: 0;
   padding: 0;
   list-style: none;
+  text-decoration: none;
 }
 
 body {
@@ -412,6 +413,14 @@ main {
   border-color: red;
   color: darkred;
   background-color: #ffb0b0;
+}
+
+.left {
+  float: left;
+}
+
+.right {
+  float: right;
 }
 
 @media (min-width: 768px) {

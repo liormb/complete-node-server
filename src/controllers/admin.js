@@ -24,7 +24,9 @@ export function postAddProduct(req, res) {
 }
 
 export function getProducts(req, res) {
-    Product.find()
+    const { _id: userId } = req.user;
+
+    Product.find({ userId })
         .then(products => {
             res.render('layout', {
                 route: 'admin_products',
@@ -50,25 +52,30 @@ export function getEditProduct(req, res) {
 }
 
 export function postEditProduct(req, res) {
+    const { _id: userId } = req.user;
     const { productId } = req.params;
     const { title, price, imageUrl, description } = req.body;
 
     Product.findById(productId)
         .then(product => {
+            if (product.userId.toString() !== userId.toString()) {
+                return Promise.resolve(['/']);
+            }
             product.title = title;
             product.price = price;
             product.imageUrl = imageUrl;
             product.description = description;
-            return product.save();
+            return Promise.all(['/admin/products', product.save()]);
         })
-        .then(() => res.redirect('/admin/products'))
+        .then(([path]) => res.redirect(path))
         .catch(console.log);
 }
 
 export function postDeleteProduct(req, res) {
+    const { _id: userId } = req.user;
     const { productId } = req.body;
 
-    Product.findByIdAndRemove(productId)
+    Product.deleteOne({ _id: productId, userId })
         .then(() => res.redirect('/admin/products'))
         .catch(console.log);
 }
