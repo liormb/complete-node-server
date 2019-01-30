@@ -1,5 +1,5 @@
 <% if (errors) { %>
     <% for (let error of errors) { %>
-        <div class="user-message user-message--error"><%= error %></div>
+        <div class="user-message user-message--error"><%= error.msg %></div>
     <% } %>
 <% } %>

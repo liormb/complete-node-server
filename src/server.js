@@ -7,7 +7,7 @@ import session from 'express-session';
 import mongoDBSession from 'connect-mongodb-session';
 import mongoose from 'mongoose';
 import bodyParser from 'body-parser';
-import User from './models/User';
+import addUser from './middlewares/addUser';
 
 // routes
 import shopRoutes from './routes/shop';
@@ -51,17 +51,7 @@ app.use(csrf());
 app.use(flash());
 
 // add first user to the request body
-app.use((req, res, next) => {
-    if (!req.session.user) {
-        return next();
-    }
-    User.findById(req.session.user._id)
-        .then(user => {
-            req.user = user;
-            next();
-        })
-        .catch(console.log);
-});
+app.use(addUser);
 
 app.use((req, res, next) => {
     res.locals.isAuthenticated = req.session.isLoggedIn;
@@ -78,7 +68,7 @@ app.use(errorRoutes);
 // setup mongodb connection
 // and start listening on port 3000
 mongoose
-    .connect(MONGODB_URI)
+    .connect(MONGODB_URI, { useNewUrlParser: true })
     .then(() => app.listen(3000))
     .catch(console.log);
 

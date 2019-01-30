@@ -50,8 +50,10 @@
             <%- include('auth/reset-password.ejs') %>
         <% } else if (route === 'new_password') { %>
             <%- include('auth/new-password.ejs') %>
-        <% } else { %>
+        <% } else if (route === '404') { %>
             <%- include('partials/404.ejs') %>
+        <% } else { %>
+            <%- include('partials/500.ejs') %>
         <% } %>
     </main>
     <%- include('footer.ejs') %>

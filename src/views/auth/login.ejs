@@ -2,15 +2,27 @@
     <%- include('../partials/error-message.ejs') %>
     <div class="form-control">
         <label for="email">Email</label>
-        <input id="email" type="email" name="email">
+        <input
+            id="email"
+            class="<%= validation && validation.email ? 'invalid' : ''%>"
+            type="email"
+            name="email"
+            value="<%= userInput.email || '' %>"
+        >
     </div>
     <div class="form-control">
         <label for="password">Password</label>
-        <input id="password" type="password" name="password">
+        <input
+            id="password"
+            class="<%= validation && validation.password ? 'invalid' : ''%>"
+            type="password"
+            name="password"
+            value="<%= userInput.password || '' %>"
+        >
     </div>
     <input type="hidden" name="_csrf" value="<%= csrfToken %>">
     <div class="actions">
-        <a href="/reset-password" class="reset-password">Reset Password</a>
+        <a href="/reset-password">Reset Password</a>
         <button class="btn" type="submit">Login</button>
     </div>
 </form>

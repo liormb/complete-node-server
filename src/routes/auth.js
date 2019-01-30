@@ -1,5 +1,10 @@
 import { Router } from 'express';
 import {
+    signupValidator,
+    signinValidator,
+} from '../utils/validator';
+
+import {
     getLogin,
     postLogin,
     postLogout,
@@ -14,9 +19,9 @@ import {
 const router = new Router();
 
 router.get('/signup', getSignup);
-router.post('/signup', postSignup);
+router.post('/signup', signupValidator, postSignup);
 router.get('/login', getLogin);
-router.post('/login', postLogin);
+router.post('/login', signinValidator, postLogin);
 router.post('/logout', postLogout);
 router.get('/reset-password', getResetPassword);
 router.post('/reset-password', postResetPassword);

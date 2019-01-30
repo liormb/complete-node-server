@@ -1,19 +1,35 @@
 import crypto from 'crypto';
 import bcrypt from 'bcryptjs';
-import User from '../models/User';
+import { validationResult } from 'express-validator/check';
+import handleServerError from '../middlewares/handleServerError';
 import mailer, { sighUpEmail, resetPasswordEmail } from '../utils/mailer';
+import User from '../models/User';
 
 export function getSignup(req, res) {
     res.render('layout', {
         route: 'signup',
         title: 'SignUp Page',
+        userInput: {},
+        validation: {},
         errors: req.flash('signupErrors'),
     });
 }
 
 export function postSignup(req, res) {
     const { email, password, confirmPassword, firstName, lastName } = req.body;
-    const signupPromise = path => bcrypt.hash(password, 12)
+    const errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+        return res.status(422).render('layout', {
+            route: 'signup',
+            title: 'SignUp Page',
+            userInput: { email, password, confirmPassword, firstName, lastName },
+            validation: errors.array().map(({ params }) => params),
+            errors: errors.array(),
+        });
+    }
+
+    return bcrypt.hash(password, 12)
         .then(hashedPassword => {
             const user = new User({
                 email,
@@ -24,48 +40,54 @@ export function postSignup(req, res) {
             });
             return user.save();
         })
-        .then(() => path);
-
-    User.findOne({ email })
-        .then(userDocument => {
-            if (userDocument) {
-                req.flash('signupErrors', 'Email already exist, please use a different email');
-                return Promise.resolve('/signup');
-            }
-            return signupPromise('/login');
-        })
-        .then(path => {
-            res.redirect(path);
+        .then(() => {
+            res.redirect('/signin');
             return mailer.sendMail(sighUpEmail({
                 email,
                 firstName,
             }));
         })
-        .catch(console.log);
+        .catch(handleServerError);
 }
 
 export function getLogin(req, res) {
     res.render('layout', {
         route: 'login',
         title: 'Login Page',
+        userInput: {},
+        validation: {},
         errors: req.flash('loginErrors'),
     });
 };
 
 export function postLogin(req, res) {
     const { email, password } = req.body;
+    const errors = validationResult(req);
+    const redirectToLogin = () => {
+        return res.status(422).render('layout', {
+            route: 'login',
+            title: 'Login Page',
+            userInput: { email, password },
+            validation: errors.array().map(({ params }) => params),
+            errors: errors.array(),
+        });
+    }
+
+    if (!errors.isEmpty()) {
+        redirectToLogin();
+    }
 
     User.findOne({ email })
         .then(user => {
             if (!user) {
                 req.flash('loginErrors', 'Invalid email or password');
-                return Promise.resolve('/login');
+                redirectToLogin();
             }
             return bcrypt.compare(password, user.password)
                 .then(hasMatched => {
                     if (!hasMatched) {
                         req.flash('loginErrors', 'Invalid email or password');
-                        return Promise.resolve('/login');
+                        redirectToLogin();
                     }
                     req.session.user = user;
                     req.session.isLoggedIn = true;
@@ -77,16 +99,16 @@ export function postLogin(req, res) {
                         )
                     );
                 })
-                .catch(() => Promise.resolve('/login'));
+                .catch(redirectToLogin);
         })
-        .then(path => res.redirect(path))
-        .catch(console.log);
+        .then(() => res.redirect('/'))
+        .catch(handleServerError);
 };
 
 export function postLogout(req, res) {
     req.session.destroy(err => {
         if (err) {
-            console.log(err);
+            handleServerError(err);
         } else {
             res.redirect('/');
         }
@@ -126,7 +148,7 @@ export function postResetPassword(req, res) {
                     lastName: user.lastName,
                 }));
             })
-            .catch(console.log);
+            .catch(handleServerError);
     });
 }
 
@@ -150,7 +172,7 @@ export function getNewPassword(req, res) {
                 errors: req.flash('newPasswordErrors'),
             });
         })
-        .catch(console.log);
+        .catch(handleServerError);
 }
 
 export function postNewPassword(req, res) {
@@ -175,5 +197,5 @@ export function postNewPassword(req, res) {
             return user.save();
         })
         .then(() => res.redirect('/login'))
-        .catch(console.log);
+        .catch(handleServerError);
 }

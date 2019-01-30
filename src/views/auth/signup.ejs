@@ -1,24 +1,54 @@
-<form class="login-form" action="/signup" method="POST">
+<form class="login-form" action="/signup" method="POST" novalidate>
     <%- include('../partials/error-message.ejs') %>
     <div class="form-control">
         <label for="firstName">First Name</label>
-        <input id="firstName" type="text" name="firstName">
+        <input
+            id="firstName"
+            class="<%= validation.firstName ? 'invalid' : ''%>"
+            type="text"
+            name="firstName"
+            value="<%= userInput.firstName || '' %>"
+        >
     </div>
     <div class="form-control">
         <label for="lastName">Last Name</label>
-        <input id="lastName" type="text" name="lastName">
+        <input
+            id="lastName"
+            class="<%= validation.lastName ? 'invalid' : ''%>"
+            type="text"
+            name="lastName"
+            value="<%= userInput.lastName || '' %>"
+        >
     </div>
     <div class="form-control">
         <label for="email">Email</label>
-        <input id="email" type="email" name="email">
+        <input
+            id="email"
+            class="<%= validation.email ? 'invalid' : ''%>"
+            type="email"
+            name="email"
+            value="<%= userInput.email || ''%>"
+        >
     </div>
     <div class="form-control">
         <label for="password">Password</label>
-        <input id="password" type="password" name="password">
+        <input
+            id="password"
+            class="<%= validation.password ? 'invalid' : ''%>"
+            type="password"
+            name="password"
+            value="<%= userInput.password || '' %>"
+        >
     </div>
     <div class="form-control">
         <label for="confirmPassword">Confirm Password</label>
-        <input id="confirmPassword" type="password" name="confirmPassword">
+        <input
+            id="confirmPassword"
+            class="<%= validation.confirmPassword ? 'invalid' : ''%>"
+            type="password"
+            name="confirmPassword"
+            value="<%= userInput.confirmPassword || '' %>"
+        >
     </div>
     <input type="hidden" name="_csrf" value="<%= csrfToken %>">
     <button class="btn" type="submit">Sign Up</button>
