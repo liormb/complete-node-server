@@ -1,4 +1,9 @@
-<form class="product-form inline" action="/admin/product/<%= product._id || '' %>" method="POST">
+<form
+    class="product-form inline"
+    action="/admin/product/<%= product._id || '' %>"
+    method="POST"
+    enctype="multipart/form-data"
+>
     <%- include('../partials/error-message.ejs') %>
     <div class="form-control">
         <label for="title">Title</label>
@@ -22,13 +27,11 @@
         >
     </div>
     <div class="form-control">
-        <label for="imageUrl">Image URL</label>
+        <label for="image">Image</label>
         <input
-            id="imageUrl"
-            class="<%= validation && validation.imageUrl ? 'invalid' : ''%>"
-            type="text"
-            name="imageUrl"
-            value="<%= product.imageUrl || '' %>"
+            id="image"
+            type="file"
+            name="image"
         >
     </div>
     <div class="form-control">

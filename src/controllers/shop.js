@@ -1,5 +1,9 @@
+import fs from 'fs';
+import path from 'path';
 import Product from '../models/Product';
 import Order from '../models/Order';
+import { createOrderInvoice } from '../utils/invoiceHelpers';
+import handleServerError from '../middlewares/handleServerError';
 
 export function getIndex(req, res) {
     Product.find()
@@ -109,3 +113,18 @@ export function getOrders(req, res) {
         })
         .catch(console.log);
 };
+
+export function getInvoice(req, res) {
+    const { orderId } = req.params;
+
+    Order.findById(orderId)
+        .then(order => {
+            if (!order) {
+                return handleServerError('No order found');
+            } else if (order.user.userId.toString() !== req.user._id.toString()) {
+                return handleServerError('You are unauthorized to review this invoice!');
+            }
+            createOrderInvoice(res, order);
+        })
+        .catch(handleServerError);
+}

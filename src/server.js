@@ -1,6 +1,7 @@
 import path from 'path';
 import dotenv from 'dotenv';
 import csrf from 'csurf';
+import multer from 'multer';
 import flash from 'connect-flash';
 import express from 'express';
 import session from 'express-session';
@@ -8,6 +9,7 @@ import mongoDBSession from 'connect-mongodb-session';
 import mongoose from 'mongoose';
 import bodyParser from 'body-parser';
 import addUser from './middlewares/addUser';
+import { fileStorage, fileFilter } from './utils/fileHelpers';
 
 // routes
 import shopRoutes from './routes/shop';
@@ -20,18 +22,21 @@ dotenv.config();
 const DATABASE_NAME = 'shop';
 const MONGODB_URI = `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@projects0-ofgts.mongodb.net/${DATABASE_NAME}`;
 const MongoDBStore = mongoDBSession(session);
-
 const app = express();
 
 // setup template engine
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
-// setup express body parser
+// setup express body parser to handle text request data
 app.use(bodyParser.urlencoded({ extended: false }));
+
+// setup express parser to handle single file
+app.use(multer({ storage: fileStorage, fileFilter }).single('image'));
 
 // setup static path directory
 app.use(express.static(path.join(__dirname, '../public')));
+app.use('*/**/images', express.static(path.join(__dirname, '../data/images')));
 
 // setup session configuration
 app.use(session({

@@ -1,4 +1,4 @@
-<% if (errors) { %>
+<% if (Array.isArray(errors)) { %>
     <% for (let error of errors) { %>
         <div class="user-message user-message--error"><%= error.msg %></div>
     <% } %>

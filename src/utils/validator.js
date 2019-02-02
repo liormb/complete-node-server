@@ -1,3 +1,4 @@
+import get from 'lodash.get';
 import { body } from 'express-validator/check';
 import User from '../models/User';
 
@@ -51,14 +52,18 @@ export const signinValidator = [
 
 export const productValidator = [
     body('title')
-        .isAlphanumeric()
-        .trim()
-        .isLength({ min: 3 }),
+        .isLength({ min: 2, max: 510 })
+        .trim(),
     body('price')
-        .isFloat(),
-    body('imageUrl')
-        .isURL(),
+        .isFloat()
+        .trim(),
+    body('image')
+        .custom((value, {req}) => {
+            const isEditProduct = !!get(req.params, 'productId');
+            return isEditProduct || !!req.file;
+        })
+        .withMessage('Attached file is not a valid image'),
     body('description')
-        .trim()
-        .isLength({ min: 5, max: 500 }),
+        .isLength({ min: 2, max: 510 })
+        .trim(),
 ];
