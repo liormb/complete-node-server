@@ -7,7 +7,7 @@ import {
     postEditProduct,
     getAddProduct,
     postAddProduct,
-    postDeleteProduct,
+    deleteProduct,
 } from '../controllers/admin';
 
 const router = express.Router();
@@ -17,6 +17,6 @@ router.post('/product', isAuth, productValidator, postAddProduct);
 router.get('/products', isAuth, getProducts);
 router.get('/product/:productId', isAuth, getEditProduct);
 router.post('/product/:productId', isAuth, productValidator, postEditProduct);
-router.post('/delete-product', isAuth, postDeleteProduct);
+router.delete('/product/:productId', isAuth, deleteProduct);
 
 export default router;

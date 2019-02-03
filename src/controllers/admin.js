@@ -14,7 +14,7 @@ export function getAddProduct(req, res) {
     });
 }
 
-export function postAddProduct(req, res) {
+export function postAddProduct(req, res, next) {
     const { _id: userId } = req.user;
     const { title, price, description } = req.body;
     const imageUrl = get(req.file, 'path');
@@ -38,10 +38,10 @@ export function postAddProduct(req, res) {
     });
     product.save()
         .then(() => res.redirect('/admin/products'))
-        .catch(handleServerError);
+        .catch(err => handleServerError(next, err));
 }
 
-export function getProducts(req, res) {
+export function getProducts(req, res, next) {
     const { _id: userId } = req.user;
 
     Product.find({ userId })
@@ -52,10 +52,10 @@ export function getProducts(req, res) {
                 products,
             });
         })
-        .catch(handleServerError);
+        .catch(err => handleServerError(next, err));
 }
 
-export function getEditProduct(req, res) {
+export function getEditProduct(req, res, next) {
     const { productId } = req.params;
 
     Product.findById(productId)
@@ -71,10 +71,10 @@ export function getEditProduct(req, res) {
                 errors: [],
             })
         })
-        .catch(handleServerError);
+        .catch(err => handleServerError(next, err));
 }
 
-export function postEditProduct(req, res) {
+export function postEditProduct(req, res, next) {
     const { _id } = req.user;
     const { productId } = req.params;
     const { title, price, description } = req.body;
@@ -97,7 +97,7 @@ export function postEditProduct(req, res) {
                 return res.redirect('/');
             }
             if (imageUrl) {
-                deleteFile(imageUrl);
+                deleteFile(next, imageUrl);
                 product.imageUrl = imageUrl;
             }
             product.title = title;
@@ -106,21 +106,26 @@ export function postEditProduct(req, res) {
             return product.save();
         })
         .then(() => res.redirect('/admin/products'))
-        .catch(handleServerError);
+        .catch(err => handleServerError(next, err));
 }
 
-export function postDeleteProduct(req, res) {
+export function deleteProduct(req, res, next) {
     const { _id: userId } = req.user;
-    const { productId } = req.body;
+    const { productId } = req.params;
 
     Product.findById(productId)
         .then(product => {
             if (!product) {
-                return handleServerError('Product not found');
+                return handleServerError(next, 'Product not found');
             }
-            deleteFile(product.imageUrl);
+            deleteFile(next, product.imageUrl);
             return Product.deleteOne({ _id: productId, userId });
         })
-        .then(() => res.redirect('/admin/products'))
-        .catch(handleServerError);
+        .then(() => res.status(200).json({
+            message: 'Success',
+        }))
+        .catch(error => res.status(500).json({
+            message: 'Deleting product fail',
+            error,
+        }));
 }

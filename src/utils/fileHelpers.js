@@ -23,6 +23,10 @@ export const fileStorage = multer.diskStorage({
     destination,
 });
 
-export function deleteFile(filePath) {
-    fs.unlink(filePath, handleServerError);
+export function deleteFile(next, filePath) {
+    fs.unlink(filePath, err => {
+        if (err) {
+            handleServerError(next, err);
+        }
+    });
 }

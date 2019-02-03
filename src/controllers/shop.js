@@ -5,19 +5,38 @@ import Order from '../models/Order';
 import { createOrderInvoice } from '../utils/invoiceHelpers';
 import handleServerError from '../middlewares/handleServerError';
 
-export function getIndex(req, res) {
+const ITEMS_PER_PAGE = 4;
+
+export function getIndex(req, res, next) {
+    const page = Number(req.query.page) || 1;
+
     Product.find()
-        .then(products => {
+        .countDocuments()
+        .then(totalProducts => Promise.all([
+            totalProducts,
+            Product.find()
+                .skip(ITEMS_PER_PAGE * (page - 1))
+                .limit(ITEMS_PER_PAGE)
+        ]))
+        .then(([totalProducts, products]) => {
+            const pages = Math.ceil(totalProducts / ITEMS_PER_PAGE);
             res.render('layout', {
                 route: 'index',
                 title: 'Shop',
+                pages: [...Array(pages)].map((v, i) => ++i),
+                currentPage: page,
+                lastPage: pages,
+                nextPage: page + 1,
+                previousPage: page - 1,
+                hasNextPage: ITEMS_PER_PAGE * page < totalProducts,
+                hasPreviousPage: page > 1,
                 products,
             });
         })
-        .catch(console.log);
+        .catch(err => handleServerError(next, err));
 }
 
-export function getProduct(req, res) {
+export function getProduct(req, res, next) {
     const { productId } = req.params;
     Product.findById(productId)
         .then(product => {
@@ -27,22 +46,39 @@ export function getProduct(req, res) {
                 product,
             });
         })
-        .catch(console.log);
+        .catch(err => handleServerError(next, err));
 }
 
-export function getProducts(req, res) {
+export function getProducts(req, res, next) {
+    const page = Number(req.query.page) || 1;
+
     Product.find()
-        .then(products => {
+        .countDocuments()
+        .then(totalProducts => Promise.all([
+            totalProducts,
+            Product.find()
+                .skip(ITEMS_PER_PAGE * (page - 1))
+                .limit(ITEMS_PER_PAGE)
+        ]))
+        .then(([totalProducts, products]) => {
+            const pages = Math.ceil(totalProducts / ITEMS_PER_PAGE);
             res.render('layout', {
                 route: 'products',
                 title: 'All Products',
+                pages: [...Array(pages)].map((v, i) => ++i),
+                currentPage: page,
+                lastPage: pages,
+                nextPage: page + 1,
+                previousPage: page - 1,
+                hasNextPage: ITEMS_PER_PAGE * page < totalProducts,
+                hasPreviousPage: page > 1,
                 products,
             });
         })
-        .catch(console.log);
+        .catch(err => handleServerError(next, err));
 }
 
-export function getCart(req, res) {
+export function getCart(req, res, next) {
     req.user
         .populate('cart.items.productId')
         .execPopulate()
@@ -57,25 +93,25 @@ export function getCart(req, res) {
                 products,
             });
         })
-        .catch(console.log);
+        .catch(err => handleServerError(next, err));
 }
 
-export function postCart(req, res) {
+export function postCart(req, res, next) {
     const { productId } = req.body;
     Product.findById(productId)
         .then(product => req.user.addToCart(product))
         .then(() => res.redirect('/cart'))
-        .catch(console.log);
+        .catch(err => handleServerError(next, err));
 }
 
-export function postDeleteFromCart(req, res) {
+export function postDeleteFromCart(req, res, next) {
     const { productId } = req.body;
     req.user.removeFromCart(productId)
         .then(() => res.redirect('/cart'))
-        .catch(console.log);
+        .catch(err => handleServerError(next, err));
 }
 
-export function postOrder(req, res) {
+export function postOrder(req, res, next) {
     const { _id: userId, firstName, lastName, email } = req.user;
     req.user
         .populate('cart.items.productId')
@@ -93,10 +129,10 @@ export function postOrder(req, res) {
         })
         .then(() => req.user.clearCart())
         .then(() => res.redirect('/orders'))
-        .catch(console.log);
+        .catch(err => handleServerError(next, err));
 }
 
-export function getOrders(req, res) {
+export function getOrders(req, res, next) {
     Order.find({ 'user.userId': req.user._id })
         .then(orders => {
             res.render('layout', {
@@ -111,20 +147,20 @@ export function getOrders(req, res) {
                 })),
             });
         })
-        .catch(console.log);
+        .catch(err => handleServerError(next, err));
 };
 
-export function getInvoice(req, res) {
+export function getInvoice(req, res, next) {
     const { orderId } = req.params;
 
     Order.findById(orderId)
         .then(order => {
             if (!order) {
-                return handleServerError('No order found');
+                return handleServerError(next, 'No order found');
             } else if (order.user.userId.toString() !== req.user._id.toString()) {
-                return handleServerError('You are unauthorized to review this invoice!');
+                return handleServerError(next, 'You are unauthorized to review this invoice!');
             }
             createOrderInvoice(res, order);
         })
-        .catch(handleServerError);
+        .catch(err => handleServerError(next, err));
 }
