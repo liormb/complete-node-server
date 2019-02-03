@@ -9,7 +9,7 @@ function deleteProduct(btn) {
             'csrf-token': csrfToken,
         },
     })
-    // .then(res => res.json())
+    .then(res => res.json())
     .then(data => productEl.parentNode.removeChild(productEl))
     .catch(console.log);
 }

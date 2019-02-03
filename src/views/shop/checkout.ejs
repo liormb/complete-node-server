@@ -1,0 +1,45 @@
+<ul class="cart__item-list">
+    <% for (let { product, quantity } of products) { %>
+        <li class="cart-product">
+            <div class="cart-product-section">
+                <img class="cart-product-image" src="<%= product.imageUrl %>" alt="<%= product.title %>">
+            </div>
+            <div class="cart-product-section cart-product-title">
+                <p class="vertically-align"><%= product.title %></p>
+            </div>
+            <div class="cart-product-section cart-product-quantity">
+                <p class="vertically-align"><%= quantity %></p>
+            </div>
+            <div class="cart-product-section cart-product-price">
+                <p class="vertically-align"><%= product.price %></p>
+            </div>
+            <div class="cart-product-section cart-product-form">
+                <form class="vertically-align" action="/cart-delete-item" method="POST">
+                    <input type="hidden" name="productId" value="<%= product._id %>">
+                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                    <button class="btn" type="submit">Delete</button>
+                </form>
+            </div>
+        </li>
+    <% } %>
+</ul>
+<div class="centered">
+    <h2>Total: $<%= total %></h2>
+</div>
+<div class="checkout centered">
+    <form action="/checkout" method="POST">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+        <script
+            src="https://checkout.stripe.com/checkout.js"
+            class="stripe-button"
+            data-key="pk_test_KldjjY7g56jglAl4cedF8nx2"
+            data-amount="<%= total * 100 %>"
+            data-name="Your Order"
+            data-description="All the items you ordered"
+            data-image="https://stripe.com/img/documentation/checkout/marketplace.png"
+            data-locale="auto"
+            data-currency="usd"
+        >
+        </script>
+    </form>
+</div>

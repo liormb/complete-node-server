@@ -14,7 +14,7 @@
     <% if (['signup', 'login', 'reset_password', 'new_password', 'products', 'admin_products', 'admin_product_form', 'admin_edit_product_form'].includes(route)) { %>
         <link rel="stylesheet" href="/styles/forms.css">
     <% } %>
-    <% if (['cart'].includes(route)) { %>
+    <% if (['cart', 'checkout'].includes(route)) { %>
         <link rel="stylesheet" href="/styles/cart.css">
     <% } %>
     <% if (['orders'].includes(route)) { %>
@@ -34,6 +34,8 @@
             <%- include('shop/product-list.ejs') %>
         <% } else if (route === 'cart') { %>
             <%- include('shop/cart.ejs') %>
+        <% } else if (route === 'checkout') { %>
+            <%- include('shop/checkout.ejs') %>
         <% } else if (route === 'orders') { %>
             <%- include('shop/orders.ejs') %>
         <% } else if (route === 'detail') { %>

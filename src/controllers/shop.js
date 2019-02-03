@@ -1,11 +1,26 @@
-import fs from 'fs';
-import path from 'path';
+import dotenv from 'dotenv';
+import Stripe from 'stripe';
 import Product from '../models/Product';
 import Order from '../models/Order';
 import { createOrderInvoice } from '../utils/invoiceHelpers';
 import handleServerError from '../middlewares/handleServerError';
 
+dotenv.config();
+
 const ITEMS_PER_PAGE = 4;
+
+function getCartItems(user) {
+    return user.cart.items.map(item => ({
+        product: { ...item.productId._doc },
+        quantity: item.quantity,
+    }));
+}
+
+function getTotal(products) {
+    return products.reduce((sum, { product, quantity }) =>
+        sum + (product.price * quantity)
+    , 0);
+}
 
 export function getIndex(req, res, next) {
     const page = Number(req.query.page) || 1;
@@ -83,14 +98,10 @@ export function getCart(req, res, next) {
         .populate('cart.items.productId')
         .execPopulate()
         .then(user => {
-            const products = user.cart.items.map(item => ({
-                ...item.productId._doc,
-                quantity: item.quantity,
-            }));
             res.render('layout', {
                 route: 'cart',
                 title: 'Your Cart',
-                products,
+                products: getCartItems(user),
             });
         })
         .catch(err => handleServerError(next, err));
@@ -111,27 +122,6 @@ export function postDeleteFromCart(req, res, next) {
         .catch(err => handleServerError(next, err));
 }
 
-export function postOrder(req, res, next) {
-    const { _id: userId, firstName, lastName, email } = req.user;
-    req.user
-        .populate('cart.items.productId')
-        .execPopulate()
-        .then(user => {
-            const products = user.cart.items.map(item => ({
-                product: { ...item.productId._doc },
-                quantity: item.quantity,
-            }));
-            const order = new Order({
-                user: { userId, firstName, lastName, email },
-                products,
-            });
-            return order.save();
-        })
-        .then(() => req.user.clearCart())
-        .then(() => res.redirect('/orders'))
-        .catch(err => handleServerError(next, err));
-}
-
 export function getOrders(req, res, next) {
     Order.find({ 'user.userId': req.user._id })
         .then(orders => {
@@ -140,9 +130,9 @@ export function getOrders(req, res, next) {
                 title: 'Your Orders',
                 orders: orders.map(order => ({
                     _id: order._id,
-                    products: order.products.map(product => ({
-                        ...product.product,
-                        quantity: product.quantity,
+                    products: order.products.map(({ product, quantity }) => ({
+                        ...product,
+                        quantity,
                     })),
                 })),
             });
@@ -162,5 +152,53 @@ export function getInvoice(req, res, next) {
             }
             createOrderInvoice(res, order);
         })
+        .catch(err => handleServerError(next, err));
+}
+
+export function getCheckout(req, res, next) {
+    req.user
+        .populate('cart.items.productId')
+        .execPopulate()
+        .then(user => {
+            const products = getCartItems(user);
+            res.render('layout', {
+                route: 'checkout',
+                title: 'Checkout Page',
+                products,
+                total: getTotal(products),
+            });
+        })
+        .catch(err => handleServerError(next, err));
+}
+
+export function postCheckout(req, res, next) {
+    const { stripeToken } = req.body;
+    const { _id: userId, firstName, lastName, email } = req.user;
+    const stripe = Stripe(process.env.STRIPE_TOKEN);
+
+    req.user
+        .populate('cart.items.productId')
+        .execPopulate()
+        .then(user => {
+            const products = getCartItems(user);
+            const order = new Order({
+                user: { userId, firstName, lastName, email },
+                products,
+            });
+            return Promise.all([products, order.save()]);
+        })
+        .then(([products, order]) => {
+            return stripe.charges.create({
+                amount: getTotal(products) * 100,
+                currency: 'usd',
+                description: 'Charge',
+                source: stripeToken,
+                metadata: {
+                    order_id: order._id.toString(),
+                },
+            });
+        })
+        .then(() => req.user.clearCart())
+        .then(() => res.redirect('/orders'))
         .catch(err => handleServerError(next, err));
 }
